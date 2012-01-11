@@ -1,7 +1,7 @@
 require File.dirname(__FILE__) + '/test_helper'
 
 class AuthenticationTest < Test::Unit::TestCase
- 
+
   def test_good_authentication
     response = {'x-server-management-url' => 'http://server-manage.example.com/path', 'x-auth-token' => 'dummy_token'}
     response.stubs(:code).returns('204')
@@ -12,7 +12,7 @@ class AuthenticationTest < Test::Unit::TestCase
     result = OpenStack::Compute::Authentication.init(connection)
     assert_equal result.class, OpenStack::Compute::AuthV10
   end
-  
+
   def test_bad_authentication
     response = mock()
     response.stubs(:code).returns('499')
@@ -24,7 +24,7 @@ class AuthenticationTest < Test::Unit::TestCase
       result = OpenStack::Compute::Authentication.init(connection)
     end
   end
-    
+
   def test_bad_hostname
     Net::HTTP.stubs(:new).raises(OpenStack::Compute::Exception::Connection)
     connection = stub(:authuser => 'bad_user', :authtenant => 'good_tenant', :authkey => 'bad_key', :auth_host => "a.b.c", :auth_port => "443", :auth_scheme => "https", :auth_path => "/v1.0", :authok= => true, :authtoken= => true, :proxy_host => nil, :proxy_port => nil, :api_path => '/foo')
@@ -32,5 +32,5 @@ class AuthenticationTest < Test::Unit::TestCase
       result = OpenStack::Compute::Authentication.init(connection)
     end
   end
-    
+
 end

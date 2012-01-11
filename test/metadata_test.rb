@@ -149,11 +149,12 @@ class MetadataTest < Test::Unit::TestCase
   end
 
   def test_delete_a_key
+    data = {'key1' => 'value'}
     response = mock()
     response.stubs(:code => "204")
     conn = mock()
     conn.expects(:req).with('DELETE', 'blah/metadata/key1').returns(response)
-    metadata = OpenStack::Compute::Metadata.new(conn, 'blah')
+    metadata = OpenStack::Compute::Metadata.new(conn, 'blah', data)
     metadata.delete!('key1')
   end
 
@@ -187,5 +188,5 @@ class MetadataTest < Test::Unit::TestCase
         assert_equal v, data[k]
     end
   end
-  
+
 end

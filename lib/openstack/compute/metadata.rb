@@ -55,12 +55,21 @@ module Compute
         response = @connection.req('POST', @base_url, :data => json)
         @metadata = JSON.parse(response.body)['metadata']
       else
-        keys.each { |key|
-          next if not @metadata.has_key?(key)
-          json = JSON.generate(:meta => { key => @metadata[key] })
-          @connection.req('PUT', "#{@base_url}/#{key}", :data => json)
-        }
+        if keys.kind_of? Array
+          keys.each { |key|
+            next if not @metadata.has_key?(key)
+            update_key(key)
+          }
+        else
+          return if not @metadata.has_key?(keys)
+          update_key(keys)
+        end
       end
+    end
+
+    def update_key(key)
+      json = JSON.generate(:meta => { key => @metadata[key] })
+      @connection.req('PUT', "#{@base_url}/#{key}", :data => json)
     end
 
     def refresh(keys=nil)
@@ -69,27 +78,51 @@ module Compute
         @metadata = JSON.parse(response.body)['metadata']
       else
         @metadata = {} if @metadata == nil
-        keys.each { |key|
-          response = @connection.req('GET', "#{@base_url}/#{key}")
-          next if response.code == "404"
-          meta = JSON.parse(response.body)['meta']
-          meta.each { |k, v| @metadata[k] = v }
-        }
+        if keys.kind_of? Array
+          keys.each { |key|
+            refresh_key(key)
+          }
+        else
+          refresh_key(keys)
+        end
       end
     end
 
+    def refresh_key(key)
+      response = @connection.req('GET', "#{@base_url}/#{key}")
+      return if response.code == "404"
+      meta = JSON.parse(response.body)['meta']
+      meta.each { |k, v| @metadata[k] = v }
+    end
+
     def delete(keys)
-      return if @metadata.nil?
-      keys.each { |key|
-        @metadata.delete(key)
-      }
+      if keys.kind_of? Array
+        keys.each { |key|
+          delete_key key
+        }
+      else
+          delete_key keys
+      end
     end
 
     def delete!(keys)
-      keys.each { |key|
-        @connection.req('DELETE', "#{@base_url}/#{key}")
-        @metadata.delete(key) if not @metadata.nil?
-      }
+      if keys.kind_of? Array
+        keys.each { |key|
+          delete_key key do
+            @connection.req('DELETE', "#{@base_url}/#{key}")
+          end
+        }
+      else
+          delete_key keys do
+            @connection.req('DELETE', "#{@base_url}/#{keys}")
+          end
+      end
+    end
+
+    def delete_key(key, &block)
+      return if @metadata.nil?
+      block.call if block
+      @metadata.delete(key)
     end
 
     def clear

@@ -19,7 +19,7 @@ module Compute
 
   private
   class AuthV20
-    
+
     def initialize(connection)
       begin
         server = Net::HTTP::Proxy(connection.proxy_host, connection.proxy_port).new(connection.auth_host, connection.auth_port)
@@ -69,7 +69,7 @@ module Compute
   end
 
   class AuthV10
-    
+
     def initialize(connection)
       hdrhash = { "X-Auth-User" => connection.authuser, "X-Auth-Key" => connection.authkey }
       begin
