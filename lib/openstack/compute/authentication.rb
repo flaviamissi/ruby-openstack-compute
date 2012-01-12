@@ -34,7 +34,7 @@ module Compute
 
       data = { "auth" =>  { "passwordCredentials" => { "username" => connection.authuser, "password" => connection.authkey }}}
       if connection.authtenant
-        data["auth"]["passwordCredentials"]["tenantName"] = connection.authtenant
+        data["auth"]["tenantName"] = connection.authtenant
       end
 
       auth_data = JSON.generate(data)
